@@ -1,13 +1,4 @@
-/*---------------------------------------------------------------------------------------------
 
-  Open Sound Control (OSC) library for the ESP8266/ESP32
-
-  Example for receiving open sound control (OSC) messages on the ESP8266/ESP32
-  Send integers '0' or '1' to the address "/led" to turn on/off the built-in LED of the esp8266.
-
-  This example code is in the public domain.
-
-  --------------------------------------------------------------------------------------------- */
 //Pantalla OLED
 #define __DEBUG__
 
@@ -39,6 +30,7 @@ TsunamiQwiic tsunami;
 #include <OSCBundle.h>
 #include <OSCData.h>
 
+//Wifi
 char ssid[] = "AXTEL XTREMO-4E67";  // your network SSID (name)
 char pass[] = "03874E67";           // your network password
 
@@ -50,17 +42,28 @@ const unsigned int localPort = 8000;      // local port to listen for UDP packet
 IPAddress ip;
 
 OSCErrorCode error;
+// Variables
 
 int layer1;
 int layer2;
 int layer3;
 int momentaneo;
-int contador1 = 0;
+int contadorA = 0;
+int contadorB = 0;
+int contadorC = 0;
+
 int statusPlaying1;
 int statusPlaying2;
+int statusPlaying3;
+
 int layerSS1 = 0;
+int layerSS2 = 0;
+int layerSS3 = 0;
+
 float estado1 = 0.0;
-int memoria1 = 0;
+float estado2 = 0.0;
+float estado3 = 0.0;
+
 void setup() {
   Serial.begin(115200);
 
@@ -151,6 +154,24 @@ void layerS1(OSCMessage &msg4) {
   display.println(layerSS1);
 }
 
+void layerS2(OSCMessage &msg5) {
+  layerSS2 = msg5.getFloat(0);
+  estado2 = layerSS2;
+  display.clearDisplay();
+  display.setCursor(0, 32);
+  // Escribir texto
+  display.println(layerSS2);
+}
+
+void layerS3(OSCMessage &msg6) {
+  layerSS3 = msg6.getFloat(0);
+  estado3 = layerSS3;
+  display.clearDisplay();
+  display.setCursor(0, 32);
+  // Escribir texto
+  display.println(layerSS3);
+}
+
 void loop() {
 
   reproduccion();
@@ -162,15 +183,13 @@ void loop() {
 void reproduccion() {
   statusPlaying1 = tsunami.isTrackPlaying(1);
   statusPlaying2 = tsunami.isTrackPlaying(5);
-  // Serial.println(contador1);
+  // Serial.println(contadorA);
   //tsunami.update();
 
   if (estado1 == 1.) {
-
-
-    contador1++;
+    contadorA++;
     //delay(100);
-    if (contador1 == 1) {
+    if (contadorA == 1) {
       display.clearDisplay();
       display.setCursor(0, 32);
       // Escribir texto
@@ -189,7 +208,7 @@ void reproduccion() {
       display.setCursor(0, 48);
 
       display.display();
-      contador1++;
+      contadorA++;
     } else if (estado1 == 0. || statusPlaying1 == 0) {
 
       //receivedMessage();
@@ -209,41 +228,22 @@ void reproduccion() {
       // Escribir texto
       display.println("Se ha terminado la capa 1");
       display.display();
-      contador1 = 0;
+      contadorA = 0;
       estado1 = 0.;
       //delay(100);
     }
   }
-  /*
-    //Serial.println("Reproduciendo capa 1");
-    OSCMessage msg("/layer1");
-    msg.add(0);
-    Udp.beginPacket(outIp, outPort);
-    msg.send(Udp);
-    Udp.endPacket();
-    msg.empty();
-    delay(500);
-*/
+
 
   else if (estado1 == 0.) {
     tsunami.stopAllTracks();
-    contador1 = 0;
-  } else if (layer2 == 1) {
-    tsunami.trackLoad(1, 0, false);  // track 1 on output 0 (aka "1L"), Lock = false (voice stealing active)
-    tsunami.trackLoad(2, 1, false);  // track 2 on output 1 (aka "1R"), Lock = false (voice stealing active)
-    tsunami.trackLoad(3, 2, false);  // track 3 on output 2 (aka "2L"), Lock = false (voice stealing active)
-    tsunami.trackLoad(4, 3, false);  // track 4 on output 3 (aka "2R"), Lock = false (voice stealing active)
-    tsunami.resumeAllInSync();
-
-    Serial.println("Reproduciendo capa 2");
-  } else if (layer3 == 1) {
-    tsunami.trackLoad(1, 0, false);  // track 1 on output 0 (aka "1L"), Lock = false (voice stealing active)
-    tsunami.trackLoad(2, 1, false);  // track 2 on output 1 (aka "1R"), Lock = false (voice stealing active)
-    tsunami.trackLoad(3, 2, false);  // track 3 on output 2 (aka "2L"), Lock = false (voice stealing active)
-    tsunami.trackLoad(4, 3, false);  // track 4 on output 3 (aka "2R"), Lock = false (voice stealing active)
-    tsunami.resumeAllInSync();
-    Serial.println("Reproduciendo capa 3");
-  } else if (statusPlaying1 == 1) {
+    contadorA = 0;
+  } 
+  
+  
+  
+  
+  else if (statusPlaying1 == 1) {
     display.clearDisplay();
     display.setCursor(0, 32);
     // Escribir texto
@@ -251,22 +251,7 @@ void reproduccion() {
     display.display();
     Serial.println("Esta reproduciendose la capa 1");
   }
-  /*
-  
-  else if (statusPlaying1 == 0) {
-    OSCMessage msg1("/layer1");
-    OSCMessage msg2("/layer2");
-    OSCMessage msg3("/layer3");
-    msg1.add(0);
-    Udp.beginPacket(outIp, outPort);
-    msg1.send(Udp);
-    Udp.endPacket();
-    msg1.empty();
-    delay(500);
-  } else if (layerSS1 = 0) {
-    tsunami.stopAllTracks();
-  } 
-  */
+
   else {
     //Serial.println("No pasa nada");
   }
@@ -289,14 +274,3 @@ void receivedMessage() {
     }
   }
 }
-/*
-  void sendMessage() {
-  OSCMessage msg("/test");
-  msg.add("hello, osc.");
-  Udp.beginPacket(outIp, outPort);
-  msg.send(Udp);
-  Udp.endPacket();
-  msg.empty();
-  delay(500);
-  }
-*/
