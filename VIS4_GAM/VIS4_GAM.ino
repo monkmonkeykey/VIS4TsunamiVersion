@@ -227,6 +227,7 @@ void reproduccion() {
 
   else if (estado1 == 0.) {
     tsunami.stopAllTracks();
+    contador1 = 0;
   } else if (layer2 == 1) {
     tsunami.trackLoad(1, 0, false);  // track 1 on output 0 (aka "1L"), Lock = false (voice stealing active)
     tsunami.trackLoad(2, 1, false);  // track 2 on output 1 (aka "1R"), Lock = false (voice stealing active)
