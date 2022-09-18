@@ -83,7 +83,7 @@ void setup() {
   display.setTextColor(SSD1306_WHITE);
   // Posición del texto
   display.setCursor(0, 32);
-  // Escribir texto
+
   display.println("VIS4 version de 4 CH");
   display.display();
   delay(3000);
@@ -140,7 +140,7 @@ void setup() {
   display.setCursor(0, 32);
   display.println(ip);
   display.display();
-  //tsunami.trackPlaySolo(1, 0);  // track = 1 (aka "1.WAV"), output = 0 (aka "1L")
+
   delay(5000);
 }
 
@@ -150,7 +150,7 @@ void layerS1(OSCMessage &msg4) {
   estado1 = layerSS1;
   display.clearDisplay();
   display.setCursor(0, 32);
-  // Escribir texto
+
   display.println(layerSS1);
 }
 
@@ -159,7 +159,7 @@ void layerS2(OSCMessage &msg5) {
   estado2 = layerSS2;
   display.clearDisplay();
   display.setCursor(0, 32);
-  // Escribir texto
+
   display.println(layerSS2);
 }
 
@@ -168,7 +168,7 @@ void layerS3(OSCMessage &msg6) {
   estado3 = layerSS3;
   display.clearDisplay();
   display.setCursor(0, 32);
-  // Escribir texto
+
   display.println(layerSS3);
 }
 
@@ -177,22 +177,18 @@ void loop() {
   reproduccion();
 
   receivedMessage();
-  // Start playing them all at the same time.
-  // Note, they will remain in "sample-sync" as they play back - sweet!
+
 }
 void reproduccion() {
   statusPlaying1 = tsunami.isTrackPlaying(1);
   statusPlaying2 = tsunami.isTrackPlaying(5);
-  // Serial.println(contadorA);
-  //tsunami.update();
+  statusPlaying3 = tsunami.isTrackPlaying(9);
 
   if (estado1 == 1.) {
     contadorA++;
-    //delay(100);
     if (contadorA == 1) {
       display.clearDisplay();
       display.setCursor(0, 32);
-      // Escribir texto
       display.println("Se reproduce la capa 1");
       display.display();
       tsunami.trackLoad(1, 0, false);  // track 1 on output 0 (aka "1L"), Lock = false (voice stealing active)
@@ -203,20 +199,13 @@ void reproduccion() {
       digitalWrite(BUILTIN_LED, 1);
       display.clearDisplay();
       display.setCursor(0, 32);
-      // Escribir texto
       display.println("Se reproduce la capa 1 mayor a 1");
       display.setCursor(0, 48);
-
       display.display();
       contadorA++;
     } else if (estado1 == 0. || statusPlaying1 == 0) {
-
-      //receivedMessage();
       tsunami.stopAllTracks();
       digitalWrite(BUILTIN_LED, 0);
-
-
-      //Serial.println("Reproduciendo capa 1");
       OSCMessage msg("/layer1");
       msg.add(0.);
       Udp.beginPacket(outIp, outPort);
@@ -225,40 +214,139 @@ void reproduccion() {
       msg.empty();
       display.clearDisplay();
       display.setCursor(0, 32);
-      // Escribir texto
       display.println("Se ha terminado la capa 1");
       display.display();
       contadorA = 0;
       estado1 = 0.;
-      //delay(100);
     }
   }
-
-
   else if (estado1 == 0.) {
     tsunami.stopAllTracks();
     contadorA = 0;
-  } 
-  
-  
-  
-  
-  else if (statusPlaying1 == 1) {
+  } else if (statusPlaying1 == 1) {
     display.clearDisplay();
     display.setCursor(0, 32);
-    // Escribir texto
     display.println("No pasa nada oiga");
     display.display();
     Serial.println("Esta reproduciendose la capa 1");
   }
+  // CAPA 2
+  else if (estado2 == 1.) {
+    contadorB++;
+    if (contadorB == 1) {
+      display.clearDisplay();
+      display.setCursor(0, 32);
+      display.println("Se reproduce la capa 2");
+      display.display();
+      tsunami.trackLoad(1, 0, false);  // track 1 on output 0 (aka "1L"), Lock = false (voice stealing active)
+      tsunami.trackLoad(2, 1, false);  // track 2 on output 1 (aka "1R"), Lock = false (voice stealing active)
+      tsunami.trackLoad(3, 2, false);  // track 3 on output 2 (aka "2L"), Lock = false (voice stealing active)
+      tsunami.trackLoad(4, 3, false);  // track 4 on output 3 (aka "2R"), Lock = false (voice stealing active)
+      tsunami.resumeAllInSync();
+      digitalWrite(BUILTIN_LED, 1);
+      display.clearDisplay();
+      display.setCursor(0, 32);
+      display.println("Se reproduce la capa 2 mayor a 2");
+      display.setCursor(0, 48);
+      display.display();
+      contadorB++;
+    } else if (estado2 == 0. || statusPlaying2 == 0) {
+      //receivedMessage();
+      tsunami.stopAllTracks();
+      digitalWrite(BUILTIN_LED, 0);
+      //Serial.println("Reproduciendo capa 2");
+      OSCMessage msg("/layer2");
+      msg.add(0.);
+      Udp.beginPacket(outIp, outPort);
+      msg.send(Udp);
+      Udp.endPacket();
+      msg.empty();
+      display.clearDisplay();
+      display.setCursor(0, 32);
 
+      display.println("Se ha terminado la capa 2");
+      display.display();
+      contadorB = 0;
+      estado2 = 0.;
+    }
+  }
+  else if (estado2 == 0.) {
+    tsunami.stopAllTracks();
+    contadorB = 0;
+  }
+  // CAPA 3
+  else if (statusPlaying3 == 1) {
+    display.clearDisplay();
+    display.setCursor(0, 32);
+
+    display.println("No pasa nada oiga");
+    display.display();
+    Serial.println("Esta reproduciendose la capa 3");
+  }
+  else if (estado3 == 1.) {
+    contadorC++;
+    //delay(100);
+    if (contadorC == 1) {
+      display.clearDisplay();
+      display.setCursor(0, 32);
+
+      display.println("Se reproduce la capa 3");
+      display.display();
+      tsunami.trackLoad(1, 0, false);  // track 1 on output 0 (aka "1L"), Lock = false (voice stealing active)
+      tsunami.trackLoad(2, 1, false);  // track 2 on output 1 (aka "1R"), Lock = false (voice stealing active)
+      tsunami.trackLoad(3, 2, false);  // track 3 on output 2 (aka "2L"), Lock = false (voice stealing active)
+      tsunami.trackLoad(4, 3, false);  // track 4 on output 3 (aka "2R"), Lock = false (voice stealing active)
+      tsunami.resumeAllInSync();
+      digitalWrite(BUILTIN_LED, 1);
+      display.clearDisplay();
+      display.setCursor(0, 32);
+
+      display.println("Se reproduce la capa 3 mayor a 3");
+      display.setCursor(0, 48);
+
+      display.display();
+      contadorC++;
+    } else if (estado3 == 0. || statusPlaying3 == 0) {
+      tsunami.stopAllTracks();
+      digitalWrite(BUILTIN_LED, 0);
+      //Serial.println("Reproduciendo capa 3");
+      OSCMessage msg("/layer3");
+      msg.add(0.);
+      Udp.beginPacket(outIp, outPort);
+      msg.send(Udp);
+      Udp.endPacket();
+      msg.empty();
+      display.clearDisplay();
+      display.setCursor(0, 32);
+
+      display.println("Se ha terminado la capa 3");
+      display.display();
+      contadorC = 0;
+      estado3 = 0.;
+      //delay(100);
+    }
+  }
+  else if (estado3 == 0.) {
+    tsunami.stopAllTracks();
+    contadorC = 0;
+  }
+  else if (statusPlaying3 == 1) {
+    display.clearDisplay();
+    display.setCursor(0, 32);
+
+    display.println("No pasa nada oiga");
+    display.display();
+    Serial.println("Esta reproduciendose la capa 2");
+  }
   else {
     //Serial.println("No pasa nada");
   }
 }
-
+// REVISAR LA FUNCIÓN!!!!!!!!!!
 void receivedMessage() {
   OSCMessage msg4;
+  OSCMessage msg5;
+  OSCMessage msg6;
   int size = Udp.parsePacket();
 
   if (size > 0) {
