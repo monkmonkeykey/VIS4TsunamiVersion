@@ -342,7 +342,7 @@ void reproduccion() {
     //Serial.println("No pasa nada");
   }
 }
-// REVISAR LA FUNCIÓN!!!!!!!!!!
+// REVISAR LA FUNCIÓN
 void receivedMessage() {
   OSCMessage msg4;
   OSCMessage msg5;
@@ -352,11 +352,23 @@ void receivedMessage() {
   if (size > 0) {
     while (size--) {
       msg4.fill(Udp.read());
+      msg5.fill(Udp.read());
+      msg6.fill(Udp.read());
     }
     if (!msg4.hasError()) {
       msg4.dispatch("/layer1", layerS1);
-    } else {
+    }
+    else if (!msg5.hasError()) {
+      msg5.dispatch("/layer2", layerS2);
+    }
+    else if (!msg6.hasError()) {
+      msg6.dispatch("/layer3", layerS3);
+    }
+
+    else {
       error = msg4.getError();
+      error = msg5.getError();
+      error = msg6.getError();
       Serial.print("error: ");
       Serial.println(error);
     }
